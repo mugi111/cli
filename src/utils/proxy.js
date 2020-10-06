@@ -52,10 +52,15 @@ function isRedirect(match) {
   return match.status && match.status >= 300 && match.status <= 400
 }
 
-function render404(publicFolder) {
+async function render404(publicFolder) {
   const maybe404Page = path.resolve(publicFolder, '404.html')
-  if (fs.existsSync(maybe404Page)) return fs.readFileSync(maybe404Page)
-  return 'Not Found'
+  try {
+    const stat404page = await fs.stat(maybe404Page)
+    if (stat404page.isFile()) return fs.readFileSync(maybe404Page)
+    return 'Not Found'
+  } catch {
+    // Ignore
+  }
 }
 
 // Used as an optimization to avoid dual lookups for missing assets
